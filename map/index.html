@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Map v1 - In progress</title>
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: black;">
+    <center>
+
+        <h1 style="font-family: 'Ubuntu', sans-serif;font-size: 15px;color: white;">Pokendy Intern Tool - MAP v1</h1>
+        <div id="image-container">
+            <button class="btn-gradient-2" id="range-1-99">Normal <label style="font-size: 8px;"><br>1-999</label></button>
+            <button class="btn-gradient-3" id="range-1000-9999">Rare <label style="font-size: 8px;"><br>1000-9899</label></button>
+            <button class="btn-gradient-4" id="range-10000-98999">High <label style="font-size: 8px;"><br>10000-99999</label></button>
+            <button class="btn-gradient-5" id="range-9990-9999">Ultra <label style="font-size: 8px;"><br>9990-9999</label></button>
+            <img id="card-image" src="" alt="Card Image" style="margin-top:10px;margin-bottom: 10px;max-width: 20%; height: auto; display: none;">
+            <button  class="btn-gradient-2" id="skip" onclick="SkipAnImage()">SKIP</button>
+            <progress id="progress-bar" value="0" max="100"></progress>
+            <h5 id="progtext" style="font-family: 'Ubuntu', sans-serif;font-size: 15px;color: white;">1/245</h5>
+<br>
+			<input id="getname" placeholder="Nom de la carte">
+			<br>
+			<button id="validname" onclick='ValidName();'>Valider le nom</button>
+            
+        </div>
+    </center>
+  
+
+    <script>
+
+
+
+// Function to get the value of a URL parameter
+function getQueryParam(param) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(param);
+}
+
+// Assigning values from URL parameters to variables
+const packName = getQueryParam('packName') || "celestialstorm";
+const maxIndex = parseInt(getQueryParam('maxIndex'), 10) || 245;
+const _padStart = parseInt(getQueryParam('_padStart'), 10) || 0;
+
+const urlPackName = getQueryParam('packName');
+const urlMaxIndex = getQueryParam('maxIndex');
+const urlPadStart = getQueryParam('_padStart');
+
+
+// Logging the values for verification
+console.log(`Pack Name: ${packName}`);
+console.log(`Max Index: ${maxIndex}`);
+console.log(`Pad Start: ${_padStart}`);
+
+if (urlPackName == null || urlMaxIndex == null || urlPadStart == null) {
+    alert("running exemple, to use it add : ?packName=celestialstorm&maxIndex=245&_padStart=0");
+}
+
+const img = document.getElementById('card-image');
+    const downloadCounts = {
+        'range-1-99': 1,
+        'range-1000-9999': 1000,
+        'range-10000-98999': 10000,
+        'range-9990-9999': 9990
+    };
+
+    var currentIndex = 1;
+
+        document.addEventListener('DOMContentLoaded', () => {
+    
+
+
+            const downloadImageAsJpg = async (url, filename) => {
+    // Load the image
+    const image = new Image();
+    image.crossOrigin = 'Anonymous'; // Handle CORS
+    image.src = url;
+
+    image.onload = () => {
+        // Create a canvas element
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+
+        // Get the context of the canvas
+        const ctx = canvas.getContext('2d');
+
+        // Fill the canvas with a white background
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the image onto the canvas
+        ctx.drawImage(image, 0, 0);
+
+        // Convert the canvas content to a Blob (JPG format)
+        canvas.toBlob((blob) => {
+            // Create an object URL for the Blob
+            const objectUrl = window.URL.createObjectURL(blob);
+
+            // Create an anchor tag to download the image
+            const a = document.createElement('a');
+            a.href = objectUrl;
+            a.download = filename.replace('.png', '.jpg'); // Change the file extension to .jpg
+            document.body.appendChild(a);
+            a.click();
+
+            // Cleanup
+            window.URL.revokeObjectURL(objectUrl);
+            document.body.removeChild(a);
+        }, 'image/jpeg');
+    };
+
+    image.onerror = () => {
+        console.error('Could not load image:', url);
+    };
+};
+
+
+
+
+    const downloadImage = async (url, filename) => {
+        const response = await fetch(url, { mode: 'cors' });
+        const blob = await response.blob();
+        const objectUrl = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(objectUrl);
+        document.body.removeChild(a);
+
+        console.log("dowloaded from : "+url);
+    };
+
+    const setupButton = (buttonId) => {
+        const button = document.getElementById(buttonId);
+        button.addEventListener('click', () => {
+            if (currentIndex > maxIndex) {
+                alert('All images have been downloaded.');
+                return;
+            }
+            
+            
+            currentIndex++;
+            updateProgressBar(currentIndex, maxIndex);
+            let paddedIndex = String(currentIndex-1).padStart(_padStart, '0');
+            let paddedIndexNext = String(currentIndex).padStart(_padStart, '0');
+            const imageUrl = `https://www.pikawiz.com/images/${packName}/${paddedIndex}.png`;
+            const imageUrlNext = `https://www.pikawiz.com/images/${packName}/${paddedIndexNext}.png`;
+            const filename = `${downloadCounts[buttonId]}.png`;
+			
+			
+			
+			
+            img.src = imageUrlNext;  // Display the image
+            img.style.display = 'block';
+            downloadImageAsJpg(imageUrl, filename);
+            downloadCounts[buttonId]++;
+            
+            
+            
+        });
+    };
+
+
+    const displayFirstImage = () => {
+        var firstcard = String(1).padStart(_padStart, '0');
+        const firstImageUrl = `https://www.pikawiz.com/images/${packName}/${firstcard}.png`;
+        img.src = firstImageUrl;
+        img.style.display = 'block';
+		
+		
+    };
+
+
+  
+
+    setupButton('range-1-99', '1-99');
+    setupButton('range-1000-9999', '1000-9999');
+    setupButton('range-10000-98999', '10000-98999');
+    setupButton('range-9990-9999', '9990-9999');
+    displayFirstImage();
+});
+
+		
+function ValidName() {
+	
+	ShowCardInfos(collname, cardid, document.getelementbyid('getname').value);
+}
+function ShowCardInfos(collname, cardid, cardname) {
+	fetch('https://www.pikawiz.com/card/'+ collname +'/'+ cardname + '/' + cardid)
+  .then(response => response.text())
+  .then(html => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const content = doc.querySelector('.carddata-tab').textContent;
+    console.log(content);
+  })
+  .catch(error => console.error('Error fetching or parsing:', error));
+
+}
+function SkipAnImage() {
+        currentIndex++
+        let paddedIndex = String(currentIndex-1).padStart(_padStart, '0');
+        let paddedIndexNext = String(currentIndex).padStart(_padStart, '0');
+        const imageUrl = `https://www.pikawiz.com/images/${packName}/${paddedIndex}.png`;
+        const imageUrlNext = `https://www.pikawiz.com/images/${packName}/${paddedIndexNext}.png`;
+
+        img.src = imageUrlNext;  // Display the image
+        img.style.display = 'block';
+
+        updateProgressBar(currentIndex, maxIndex);
+    }
+
+
+
+    function updateProgressBar(value, maxValue) {
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) {
+        progressBar.max = maxValue;
+        progressBar.value = value;
+    }
+    document.getElementById('progtext').innerText = value + "/" + maxValue;
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const triggerButton = (key) => {
+        const buttonMappings = {
+            'a': 'range-1-99',
+            'z': 'range-1000-9999',
+            'e': 'range-10000-98999',
+            'r': 'range-9990-9999'
+        };
+
+        const buttonId = buttonMappings[key];
+        if (buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.click();
+            }
+        }
+    };
+
+    document.addEventListener('keypress', (event) => {
+        const key = event.key.toLowerCase();
+        triggerButton(key);
+    });
+});
+
+
+    </script>
+</body>
+
+
+
+<style>
+    /* -------------------------------- 
+
+💡 How to create gradient borders in CSS
+🔗 https://codyhouse.co/nuggets/css-gradient-borders
+
+-------------------------------- */
+
+/* method 1 -> use border-image */
+.btn-gradient-1 {
+  border-width: 4px;
+  border-style: solid;
+  border-image: linear-gradient(to right, darkblue, darkorchid) 1;
+}
+
+/* method 2 -> use background-clip to support border-radius */
+.btn-gradient-2 {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(to right, darkblue, rgb(14, 0, 74)) border-box;
+  border-radius: 50em;
+  border: 4px solid transparent;
+}
+
+.btn-gradient-3 {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(to right, rgb(0, 144, 134), rgb(6, 175, 62)) border-box;
+  border-radius: 50em;
+  border: 4px solid transparent;
+}
+.btn-gradient-4 {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(to right, rgb(255, 25, 25), darkorchid) border-box;
+  border-radius: 50em;
+  border: 4px solid transparent;
+}
+.btn-gradient-5 {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(to right, rgb(199, 202, 0), rgb(114, 94, 5)) border-box;
+  border-radius: 50em;
+  border: 4px solid transparent;
+}
+
+/* demo stuff */
+.parent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 3rem;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.btn-gradient-1,
+.btn-gradient-3,
+.btn-gradient-4,
+.btn-gradient-5,
+.btn-gradient-2 {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: darkblue;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+</style>
+</html>
