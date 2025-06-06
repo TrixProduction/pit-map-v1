@@ -23,7 +23,7 @@ Classify Pokémon card images by rarity and download them with organised file na
 ## Quick start
 
 ```bash
-git clone https://github.com/<organisation>/map-v1.git
+git clone https://github.com/TrixProduction/pit-map-v1
 cd map-v1
 ```
 
@@ -32,7 +32,7 @@ No external dependencies: open `index.html` in your browser.
 Example:
 
 ```
-file:///.../map-v1/index.html?packName=celestialstorm&maxIndex=245&_padStart=3
+file:///.../pit-map-v1/map/index.html?packName=celestialstorm&maxIndex=245&_padStart=3
 ```
 
 If parameters are missing, the page runs with an example set and reminds you of the correct syntax.
@@ -75,17 +75,6 @@ If parameters are missing, the page runs with an example set and reminds you of 
 * Fix `ShowCardInfos` (typo and missing variables).
 * Add a service worker for full offline support.
 * Detect rarity automatically from metadata to remove manual input.
-
-Contributions and issues are welcome.
-
----
-
-## Contributing
-
-1. Fork the repository.
-2. Create a branch: `git checkout -b feature/my-change`.
-3. Commit: `git commit -m "feat: my change"`.
-4. Open a pull request.
 
 ---
 
