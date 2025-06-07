@@ -70,13 +70,6 @@ If parameters are missing, the page runs with an example set and reminds you of 
 
 ---
 
-## Roadmap
-
-* Fix `ShowCardInfos` (typo and missing variables).
-* Add a service worker for full offline support.
-* Detect rarity automatically from metadata to remove manual input.
-
----
 
 ## License
 
